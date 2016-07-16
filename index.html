@@ -55,7 +55,7 @@
                 var preco = prompt('Preço:', p.preco);
                 if(!preco) return;
                 if(preco != p.preco) {
-                    p.preco = preco;
+                    p.preco = parseFloat(preco);
                     $storage.set('produtos', $scope.produtos);
                 }
                 $scope.vendidos.push(p);
@@ -89,7 +89,7 @@
                 if(!nome) return;
                 var preco = prompt('Preço:');
                 if(!preco) return;
-                $scope.produtos.push({nome: nome, preco: preco});
+                $scope.produtos.push({nome: nome, preco: parseFloat(preco)});
                 $storage.set('produtos', $scope.produtos);
             };
             $scope.reiniciar = function() {
