@@ -21,7 +21,8 @@
         <div class="container">
             <button class="btn btn-default btn-lg" ng-repeat="p in produtos" ng-click="vender(p)">{{p.nome}}</button>
             <button class="btn btn-primary btn-lg" ng-click="novo()"><i class="fa fa-plus"></i></button>
-            <button class="btn btn-danger btn-lg" ng-click="desfazer()" ng-disabled="!vendidos.length"><i class="fa fa-undo"></i></button>
+            <button class="btn btn-warning btn-lg" ng-click="desfazer()" ng-disabled="!vendidos.length"><i class="fa fa-undo"></i></button>
+            <button class="btn btn-danger btn-lg" ng-click="reiniciar()"><i class="fa fa-trash"></i></button>
             <table class="table">
                 <thead>
                     <tr>
@@ -91,14 +92,25 @@
                 $scope.produtos.push({nome: nome, preco: preco});
                 $storage.set('produtos', $scope.produtos);
             };
+            $scope.reiniciar = function() {
+                if(confirm('Confirma?')) {
+                    $scope.produtos = [];
+                    $scope.vendidos = [];
+                    $storage.remove('produtos');
+                    $storage.remove('vendidos');
+                }
+            };
         })
         .service('$storage', function() {
-                this.set = function(nome, objeto) {
-                    return localStorage.setItem(nome, angular.toJson(objeto));
-                };
-                this.get = function(nome) {
-                    return angular.fromJson(localStorage.getItem(nome));
-                };
+            this.set = function(nome, objeto) {
+                return localStorage.setItem(nome, angular.toJson(objeto));
+            };
+            this.get = function(nome) {
+                return angular.fromJson(localStorage.getItem(nome));
+            };
+            this.remove = function(nome) {
+                return localStorage.removeItem(nome);
+            };
         });
     </script>
 </html>
