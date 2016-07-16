@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR" ng-app="julinaApp">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-i18n/1.5.7/angular-locale_pt-br.min.js"></script>
+    </head>
+    <body ng-controller="julinaController">
+        <nav class="navbar navbar-default">
+            <div class="navbar-header">
+                <a class="navbar-brand">Festa Julina - Vendas</a>
+            </div>
+        </nav>
+        <div class="container">
+            <button class="btn btn-default btn-lg" ng-repeat="p in produtos" ng-click="vender(p)">{{p.nome}}</button>
+            <button class="btn btn-primary btn-lg" ng-click="novo()"><i class="fa fa-plus"></i></button>
+            <button class="btn btn-danger btn-lg" ng-click="desfazer()" ng-disabled="!vendidos.length"><i class="fa fa-undo"></i></button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th ng-repeat="h in ['Produto', 'Quantidade', 'Valor']">{{h}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="p in produtos">
+                        <td>{{p.nome}}</td>
+                        <td>{{quantidade(p)}}</td>
+                        <td>{{valor(p)|currency}}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>Total</td>
+                        <td></td>
+                        <td>{{total()|currency}}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </body>
+    <script>
+        angular.module('julinaApp', [])
+        .controller('julinaController', function($scope, $storage) {
+            $scope.produtos = $storage.get('produtos') || [];
+            $scope.vendidos = $storage.get('vendidos') || [];
+            $scope.vender = function(p) {
+                var preco = prompt('Preço:', p.preco);
+                if(!preco) return;
+                if(preco != p.preco) {
+                    p.preco = preco;
+                    $storage.set('produtos', $scope.produtos);
+                }
+                $scope.vendidos.push(p);
+                $storage.set('vendidos', $scope.vendidos);
+            };
+            $scope.quantidade = function(p) {
+                return $scope.vendidos.filter(function(v) {
+                    return v.nome == p.nome;
+                }).length;
+            };
+            $scope.valor = function(p) {
+                return $scope.vendidos.filter(function(v) {
+                    return v.nome == p.nome;
+                }).reduce(function(soma, v) {
+                    return soma + v.preco;
+                }, 0);
+            };
+            $scope.total = function() {
+                return $scope.vendidos.reduce(function(soma, v) {
+                    return soma + v.preco;
+                }, 0);
+            };
+            $scope.desfazer = function () {
+                if(confirm('Confirma?')) {
+                    $scope.vendidos.pop();
+                    $storage.set('vendidos', $scope.vendidos);
+                }
+            };
+            $scope.novo = function() {
+                var nome = prompt('Nome:');
+                if(!nome) return;
+                var preco = prompt('Preço:');
+                if(!preco) return;
+                $scope.produtos.push({nome: nome, preco: preco});
+                $storage.set('produtos', $scope.produtos);
+            };
+        })
+        .service('$storage', function() {
+                this.set = function(nome, objeto) {
+                    return localStorage.setItem(nome, angular.toJson(objeto));
+                };
+                this.get = function(nome) {
+                    return angular.fromJson(localStorage.getItem(nome));
+                };
+        });
+    </script>
+</html>
